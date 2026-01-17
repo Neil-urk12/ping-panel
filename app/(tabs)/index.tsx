@@ -1,98 +1,136 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { MonitorCard } from '@/components/monitor-card';
+import { SummaryCards } from '@/components/summary-cards';
+import { Colors, Spacing, Typography } from '@/constants/theme';
+import { api } from '@/convex/_generated/api';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useQuery } from 'convex/react';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function DashboardScreen() {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
+  const router = useRouter();
 
-export default function HomeScreen() {
+  const monitors = useQuery(api.monitors.getMonitors);
+  const stats = useQuery(api.monitors.getDashboardStats);
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    // Convex automatically refetches, so we just need a visual delay
+    setTimeout(() => setRefreshing(false), 500);
+  }, []);
+
+  const handleMonitorPress = (monitorId: string) => {
+    router.push(`/monitor/${monitorId}`);
+  };
+
+  if (monitors === undefined || stats === undefined) {
+    return (
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.tint} />
+        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+          Loading monitors...
+        </Text>
+      </View>
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <FlatList
+        data={monitors}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <MonitorCard
+            monitor={item}
+            onPress={() => handleMonitorPress(item._id)}
+          />
+        )}
+        ListHeaderComponent={
+          <>
+            <SummaryCards
+              total={stats.total}
+              down={stats.down}
+              degraded={stats.degraded}
+              avgLatency={stats.avgLatency}
             />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
-
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+            {monitors.length > 0 && (
+              <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+                Monitors
+              </Text>
+            )}
+          </>
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={[styles.emptyEmoji]}>📡</Text>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>
+              No monitors yet
+            </Text>
+            <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+              Add your first monitor to start tracking uptime
+            </Text>
+          </View>
+        }
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.tint}
+          />
+        }
+        contentContainerStyle={monitors.length === 0 ? styles.emptyList : undefined}
+        showsVerticalScrollIndicator={false}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: {
+    flex: 1,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
+    gap: Spacing.md,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  loadingText: {
+    ...Typography.body,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  sectionTitle: {
+    ...Typography.small,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginLeft: Spacing.md,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.xs,
+  },
+  emptyList: {
+    flexGrow: 1,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.xl * 2,
+  },
+  emptyEmoji: {
+    fontSize: 64,
+    marginBottom: Spacing.md,
+  },
+  emptyTitle: {
+    ...Typography.subtitle,
+    marginBottom: Spacing.xs,
+  },
+  emptySubtitle: {
+    ...Typography.body,
+    textAlign: 'center',
   },
 });
