@@ -28,6 +28,9 @@ const MAPPING = {
   'server.rack': 'dns',
   'globe': 'public',
   'bolt.fill': 'bolt',
+  'chart.bar.fill': 'insert-chart',
+  'plus.circle.fill': 'add-circle',
+  'wrench.and.screwdriver.fill': 'build',
 } as IconMapping;
 
 /**

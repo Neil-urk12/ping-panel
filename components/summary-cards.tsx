@@ -65,16 +65,19 @@ export function SummaryCards({ total, down, degraded, avgLatency }: SummaryCards
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
+        flexWrap: 'wrap', // Allow wrapping for grid
         paddingHorizontal: Spacing.md,
         paddingVertical: Spacing.md,
         gap: Spacing.sm,
     },
     card: {
-        flex: 1,
+        // flex: 1, // Remove flex: 1 to respect width
+        width: '48%', // Force 2 columns (approx 50% minus gap)
         alignItems: 'center',
         padding: Spacing.md,
         borderRadius: BorderRadius.lg,
         // Removed border, strictly using shadow now
+        marginBottom: Spacing.xs,
     },
     iconContainer: {
         width: 36,
