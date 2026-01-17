@@ -14,16 +14,16 @@ export const StatusColors = {
 };
 
 // Brand colors
-const primaryLight = '#6366F1';  // Indigo
-const primaryDark = '#818CF8';
+const primaryLight = '#4F46E5';  // Indigo 600 - More vibrant
+const primaryDark = '#818CF8';   // Indigo 400
 
 export const Colors = {
   light: {
     text: '#111827',
     textSecondary: '#6B7280',
-    background: '#F9FAFB',
+    background: '#F3F4F6', // Lighter background for better contrast
     surface: '#FFFFFF',
-    surfaceSecondary: '#F3F4F6',
+    surfaceSecondary: '#F9FAFB',
     tint: primaryLight,
     icon: '#6B7280',
     tabIconDefault: '#9CA3AF',
@@ -43,6 +43,30 @@ export const Colors = {
     tabIconSelected: primaryDark,
     border: '#334155',
     ...StatusColors,
+  },
+};
+
+export const Shadows = {
+  sm: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  md: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  lg: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
   },
 };
 

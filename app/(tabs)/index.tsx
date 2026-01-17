@@ -1,5 +1,6 @@
 import { MonitorCard } from '@/components/monitor-card';
 import { SummaryCards } from '@/components/summary-cards';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { api } from '@/convex/_generated/api';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -59,15 +60,22 @@ export default function DashboardScreen() {
               avgLatency={stats.avgLatency}
             />
             {monitors.length > 0 && (
-              <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-                Monitors
-              </Text>
+              <View style={styles.sectionHeader}>
+                <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+                  Monitors
+                </Text>
+                <View style={[styles.badge, { backgroundColor: colors.surfaceSecondary }]}>
+                  <Text style={[styles.badgeText, { color: colors.textSecondary }]}>{monitors.length}</Text>
+                </View>
+              </View>
             )}
           </>
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={[styles.emptyEmoji]}>📡</Text>
+            <View style={[styles.emptyIconContainer, { backgroundColor: colors.surfaceSecondary }]}>
+              <IconSymbol name="server.rack" size={48} color={colors.textSecondary} />
+            </View>
             <Text style={[styles.emptyTitle, { color: colors.text }]}>
               No monitors yet
             </Text>
@@ -83,7 +91,10 @@ export default function DashboardScreen() {
             tintColor={colors.tint}
           />
         }
-        contentContainerStyle={monitors.length === 0 ? styles.emptyList : undefined}
+        contentContainerStyle={[
+          styles.listContent,
+          monitors.length === 0 && styles.emptyList
+        ]}
         showsVerticalScrollIndicator={false}
       />
     </View>
@@ -103,13 +114,32 @@ const styles = StyleSheet.create({
   loadingText: {
     ...Typography.body,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: Spacing.md,
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.sm,
+    gap: Spacing.sm,
+  },
   sectionTitle: {
     ...Typography.small,
     textTransform: 'uppercase',
     letterSpacing: 1,
-    marginLeft: Spacing.md,
-    marginTop: Spacing.md,
-    marginBottom: Spacing.xs,
+    fontWeight: '700',
+  },
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+  },
+  badgeText: {
+    ...Typography.small,
+    fontWeight: '700',
+    fontSize: 10,
+  },
+  listContent: {
+    paddingBottom: Spacing.xl,
   },
   emptyList: {
     flexGrow: 1,
@@ -121,9 +151,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.xl * 2,
   },
-  emptyEmoji: {
-    fontSize: 64,
-    marginBottom: Spacing.md,
+  emptyIconContainer: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.lg,
   },
   emptyTitle: {
     ...Typography.subtitle,
