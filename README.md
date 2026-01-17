@@ -1,50 +1,102 @@
-# Welcome to your Expo app 👋
+# Sentinel (PingPanel)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A cross-platform mobile application built with **React Native (Expo)** and powered by **Convex** to monitor the health, uptime, and performance of deployed web applications.
 
-## Get started
+## Features
 
-1. Install dependencies
+- 📊 **Real-Time Dashboard** - Live status feed with automatic updates
+- 🟢 **Visual Status Indicators** - Green (UP), Red (DOWN), Yellow (Degraded)
+- ➕ **Monitor Management** - Create, edit, and delete monitors
+- 🔧 **Debug Console** - Built-in HTTP client (Postman-Lite)
+- ⏰ **Automated Checks** - Server-side monitoring via Convex cron jobs
 
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- pnpm (or npm/yarn)
+- Expo CLI
+- Convex account (free tier available at [convex.dev](https://convex.dev))
+
+### Installation
+
+1. **Clone the repository**
    ```bash
-   npm install
+   cd pingpanel
+   pnpm install
    ```
 
-2. Start the app
-
+2. **Set up Convex**
    ```bash
-   npx expo start
+   npx convex dev
    ```
+   This will prompt you to log in and create a new project. It will also generate the required type files.
 
-In the output, you'll find options to open the app in a
+3. **Configure environment**
+   ```bash
+   cp .env.example .env.local
+   ```
+   Update `EXPO_PUBLIC_CONVEX_URL` with your Convex deployment URL from the dashboard.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+4. **Start the app**
+   ```bash
+   pnpm start
+   ```
+   Press `w` for web, `i` for iOS simulator, or `a` for Android emulator.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Project Structure
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+pingpanel/
+├── app/                    # Expo Router screens
+│   ├── (tabs)/            # Tab navigation
+│   │   ├── index.tsx      # Dashboard
+│   │   ├── add.tsx        # Add Monitor form
+│   │   └── debug.tsx      # HTTP client
+│   ├── monitor/[id].tsx   # Monitor detail modal
+│   └── _layout.tsx        # Root layout with Convex
+├── components/            # Reusable components
+│   ├── monitor-card.tsx
+│   ├── summary-cards.tsx
+│   ├── status-badge.tsx
+│   └── response-viewer.tsx
+├── constants/             # Theme & design tokens
+├── convex/               # Backend functions
+│   ├── schema.ts         # Database schema
+│   ├── monitors.ts       # CRUD operations
+│   ├── actions.ts        # Health check action
+│   ├── scheduler.ts      # Check scheduling
+│   └── crons.ts          # Cron job config
+└── hooks/                # Custom React hooks
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Architecture
 
-## Learn more
+```
+┌─────────────────┐     ┌─────────────────┐
+│   Mobile App    │────▶│   Convex Cloud  │
+│  (React Native) │◀────│   (Backend)     │
+└─────────────────┘     └────────┬────────┘
+                                 │
+                                 ▼
+                        ┌─────────────────┐
+                        │  Target URLs    │
+                        │  (Your APIs)    │
+                        └─────────────────┘
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+- **Real-time sync**: Convex subscriptions automatically update the UI
+- **Server-side checks**: Cron jobs run every minute to check monitors
+- **Offline support**: Cached data displayed when offline
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Tech Stack
 
-## Join the community
+- **Frontend**: React Native + Expo
+- **Backend**: Convex (serverless functions + real-time database)
+- **Navigation**: Expo Router
+- **Styling**: React Native StyleSheet
 
-Join our community of developers creating universal apps.
+## License
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+MIT
